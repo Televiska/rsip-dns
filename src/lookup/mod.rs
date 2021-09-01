@@ -1,6 +1,6 @@
-use crate::*;
-use rsip::{Domain, Host, Port, Transport};
+use crate::{records::SrvDomain, resolvables::*, Context, DnsClient, Target};
 use async_trait::async_trait;
+use rsip::{Domain, Host, Port, Transport};
 use std::net::IpAddr;
 
 //mod domain_with_port_lookup;
@@ -89,7 +89,7 @@ fn domain_with_transport_lookup<C: DnsClient>(
     transport: Transport,
     ctx: Context<C>,
 ) -> Lookup<C> {
-    let mut lookups: Vec<ResolvableEnum<C>> = Vec::new();
+    let mut lookups: Vec<ResolvableEnum<C>> = vec![];
 
     let srv_domain = SrvDomain {
         secure: ctx.secure,
@@ -99,7 +99,7 @@ fn domain_with_transport_lookup<C: DnsClient>(
     lookups.push(ResolvableSrvRecord::new(ctx.dns_client.clone(), srv_domain.clone()).into());
     lookups.push(
         ResolvableAddrRecord::new(
-            ctx.dns_client.clone(),
+            ctx.dns_client,
             srv_domain.to_string().into(),
             transport.default_port(),
             transport,
@@ -111,15 +111,12 @@ fn domain_with_transport_lookup<C: DnsClient>(
 }
 
 fn just_domain_lookup<C: DnsClient>(domain: Domain, ctx: Context<C>) -> Lookup<C> {
-    let mut lookups: Vec<ResolvableEnum<C>> = Vec::new();
-    lookups.push(
-        ResolvableNaptrRecord::new(
-            ctx.dns_client.clone(),
-            domain.clone(),
-            ctx.available_transports(),
-        )
-        .into(),
-    );
+    let mut lookups: Vec<ResolvableEnum<C>> = vec![ResolvableNaptrRecord::new(
+        ctx.dns_client.clone(),
+        domain.clone(),
+        ctx.available_transports(),
+    )
+    .into()];
 
     ctx.available_transports()
         .into_iter()
@@ -130,8 +127,7 @@ fn just_domain_lookup<C: DnsClient>(domain: Domain, ctx: Context<C>) -> Lookup<C
                 domain: domain.clone(),
             };
 
-            lookups
-                .push(ResolvableSrvRecord::new(ctx.dns_client.clone(), srv_domain.clone()).into());
+            lookups.push(ResolvableSrvRecord::new(ctx.dns_client.clone(), srv_domain).into());
         });
 
     let default_transport = match ctx.secure {

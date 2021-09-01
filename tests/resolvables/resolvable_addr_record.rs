@@ -1,6 +1,6 @@
 use crate::support::MockedDnsClient;
 use rsip::{Domain, Port, Transport};
-use rsip_dns::*;
+use rsip_dns::{records::*, resolvables::*, Target};
 
 #[tokio::test]
 async fn resolves_correctly() {

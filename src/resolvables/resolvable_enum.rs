@@ -1,6 +1,9 @@
 use crate::{
-    DnsClient, ResolvableAddrRecord, ResolvableExt, ResolvableIpAddr, ResolvableNaptrRecord,
-    ResolvableSrvRecord, ResolvableState, Target,
+    resolvables::{
+        ResolvableAddrRecord, ResolvableExt, ResolvableIpAddr, ResolvableNaptrRecord,
+        ResolvableSrvRecord, ResolvableState,
+    },
+    DnsClient, Target,
 };
 use async_trait::async_trait;
 

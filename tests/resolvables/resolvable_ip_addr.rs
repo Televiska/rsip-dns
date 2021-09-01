@@ -1,4 +1,4 @@
-use rsip_dns::*;
+use rsip_dns::resolvables::*;
 
 #[tokio::test]
 async fn resolves_correctly() {

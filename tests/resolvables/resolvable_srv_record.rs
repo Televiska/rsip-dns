@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 use rsip::{Domain, Error};
-use rsip_dns::*;
+use rsip_dns::{records::*, resolvables::*, DnsClient};
 use std::{collections::HashMap, net::IpAddr};
 
 #[tokio::test]

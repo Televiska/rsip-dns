@@ -1,5 +1,5 @@
 use rsip::{Domain, Error};
-use rsip_dns::*;
+use rsip_dns::{records::*, DnsClient};
 
 #[derive(Debug, Clone, Default)]
 pub struct MockedDnsClient {

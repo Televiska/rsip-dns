@@ -41,16 +41,13 @@ impl<C: DnsClient> Context<C> {
             .unwrap_or(false);
         let transport = uri.transport().cloned();
 
-        match (
+        if let (true, Some(false)) = (
             secure,
             transport.map(|t| !Transport::secure_transports().contains(&t)),
         ) {
-            (true, Some(false)) => {
-                return Err(Error::Unexpected(
-                    "can't build context with secure scheme and insecure transport".into(),
-                ))
-            }
-            _ => (),
+            return Err(Error::Unexpected(
+                "can't build context with secure scheme and insecure transport".into(),
+            ));
         }
 
         //TODO: add the same for available transports

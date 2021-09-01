@@ -1,4 +1,4 @@
-use crate::SrvDomain;
+use super::SrvDomain;
 use rsip::{Domain, Port, Transport};
 
 #[derive(Debug, Clone)]
@@ -41,9 +41,19 @@ impl SrvRecord {
     }
 
     pub fn sorted(mut self) -> Self {
-        self.entries
-            .sort_by(|a, b| b.total_weight().cmp(&a.total_weight()));
+        use std::cmp::Reverse;
+
+        self.entries.sort_by_key(|b| Reverse(b.total_weight()));
         self
+    }
+}
+
+impl IntoIterator for SrvRecord {
+    type Item = SrvEntry;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.entries.into_iter()
     }
 }
 

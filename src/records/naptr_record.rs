@@ -1,4 +1,3 @@
-use crate::SrvDomain;
 use rsip::{Domain, Error, Transport};
 use std::collections::VecDeque;
 use std::convert::TryFrom;
@@ -68,10 +67,6 @@ impl NaptrRecord {
         self.entries.iter()
     }
 
-    pub fn into_iter(self) -> impl Iterator<Item = NaptrEntry> {
-        self.entries.into_iter()
-    }
-
     pub fn replacements(&self) -> Vec<Domain> {
         self.iter()
             .map(|s| s.replacement.clone())
@@ -84,18 +79,20 @@ impl NaptrRecord {
             .collect::<Vec<_>>()
     }
 
-    pub fn srv_domains_from_replacements(&self, secure: bool) -> Vec<SrvDomain> {
-        self.replacements()
-            .into_iter()
-            .map(|domain| SrvDomain::list_from(domain, secure, vec![]))
-            .flatten()
-            .collect::<Vec<SrvDomain>>()
-    }
-
     pub fn sorted(mut self) -> Self {
-        self.entries
-            .sort_by(|a, b| b.total_weight().cmp(&a.total_weight()));
+        use std::cmp::Reverse;
+
+        self.entries.sort_by_key(|b| Reverse(b.total_weight()));
         self
+    }
+}
+
+impl IntoIterator for NaptrRecord {
+    type Item = NaptrEntry;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.entries.into_iter()
     }
 }
 

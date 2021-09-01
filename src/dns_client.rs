@@ -1,4 +1,4 @@
-use crate::{AddrRecord, NaptrRecord, SrvDomain, SrvRecord};
+use crate::records::{AddrRecord, NaptrRecord, SrvDomain, SrvRecord};
 use async_trait::async_trait;
 use rsip::{Domain, Error};
 

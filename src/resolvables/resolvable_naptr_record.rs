@@ -1,6 +1,7 @@
 use crate::{
-    resolvables::{ResolvableExt, ResolvableState, ResolvableVec},
-    *,
+    records::NaptrFlags,
+    resolvables::{ResolvableExt, ResolvableSrvRecord, ResolvableState, ResolvableVec},
+    DnsClient, Target,
 };
 use async_trait::async_trait;
 use rsip::{Domain, Transport};

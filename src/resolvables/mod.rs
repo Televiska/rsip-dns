@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 mod resolvable;
 mod resolvable_addr_record;
 mod resolvable_enum;
@@ -11,10 +10,11 @@ pub use resolvable::Resolvable;
 pub use resolvable_addr_record::ResolvableAddrRecord;
 pub use resolvable_enum::ResolvableEnum;
 pub use resolvable_ip_addr::ResolvableIpAddr;
+pub use resolvable_naptr_record::ResolvableNaptrRecord;
 pub use resolvable_srv_record::ResolvableSrvRecord;
 pub use resolvable_vec::ResolvableVec;
-pub use resolvable_naptr_record::ResolvableNaptrRecord;
 
+use async_trait::async_trait;
 use std::collections::VecDeque;
 
 #[derive(Debug, Clone)]
@@ -36,19 +36,11 @@ where
     async fn resolve_next(&mut self) -> Option<I>;
 
     fn is_empty(&self) -> bool {
-        use ResolvableState::*;
-        match self.state() {
-            Empty => true,
-            _ => false,
-        }
+        matches!(self.state(), ResolvableState::Empty)
     }
 
     fn is_unset(&self) -> bool {
-        use ResolvableState::*;
-        match self.state() {
-            Unset => true,
-            _ => false,
-        }
+        matches!(self.state(), ResolvableState::Unset)
     }
 
     fn is_empty_or_unset(&self) -> bool {

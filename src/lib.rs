@@ -1,25 +1,19 @@
 mod context;
 mod dns_client;
-pub mod lookups;
-mod records;
-pub mod resolvables;
-mod srv_domain;
+mod lookup;
 mod target;
-#[cfg(feature = "trust-dns")]
-mod trust_dns_client;
+
+pub mod records;
+pub mod resolvables;
 
 pub use context::{AvailableTransports, Context};
 pub use dns_client::DnsClient;
-pub use srv_domain::SrvDomain;
-//pub use lookups::{DomainWithPortLookup, IpLookup, Lookup};
-pub use records::{
-    AddrRecord, NaptrEntry, NaptrFlags, NaptrRecord, NaptrServices, SrvEntry, SrvRecord,
-};
-pub use resolvables::{
-    ResolvableAddrRecord, ResolvableEnum, ResolvableExt, ResolvableIpAddr, ResolvableNaptrRecord,
-    ResolvableSrvRecord, ResolvableState, ResolvableVec,
-};
+pub use lookup::Lookup;
 pub use target::Target;
+
+#[cfg(feature = "trust-dns")]
+mod trust_dns_client;
+
 //pub use triple::{Triple, TripleList};
 #[cfg(feature = "trust-dns")]
 pub use trust_dns_client::TrustDnsClient;

@@ -5,4 +5,4 @@
 [![Crates.io Version](https://img.shields.io/crates/v/rsip-dns.svg)](https://crates.io/crates/rsip-dns)
 [![Minimum rustc version](https://img.shields.io/badge/rustc-1.44.0+-lightgray.svg)](#rust-version-requirements)
 
-SIP Rust library implementing RFC 3263, implemented on top of rsip
+SIP Rust library implementing [RFC 3263](https://datatracker.ietf.org/doc/html/rfc3263), implemented on top of rsip
