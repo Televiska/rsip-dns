@@ -15,15 +15,7 @@ async fn resolves_correctly() {
     assert_eq!(
         resolvable.resolve_next().await.map(|t| t.ip_addr),
         IP_ADDRS
-            .get(
-                &SRV_RECORD
-                    .entries
-                    .first()
-                    .unwrap()
-                    .clone()
-                    .target
-                    .to_string()
-            )
+            .get(&SRV_RECORD.entries.first().unwrap().clone().target.to_string())
             .unwrap()
             .first()
             .cloned()
@@ -32,15 +24,7 @@ async fn resolves_correctly() {
     assert_eq!(
         resolvable.resolve_next().await.map(|t| t.ip_addr),
         IP_ADDRS
-            .get(
-                &SRV_RECORD
-                    .entries
-                    .first()
-                    .unwrap()
-                    .clone()
-                    .target
-                    .to_string()
-            )
+            .get(&SRV_RECORD.entries.first().unwrap().clone().target.to_string())
             .unwrap()
             .last()
             .cloned()
@@ -49,15 +33,7 @@ async fn resolves_correctly() {
     assert_eq!(
         resolvable.resolve_next().await.map(|t| t.ip_addr),
         IP_ADDRS
-            .get(
-                &SRV_RECORD
-                    .entries
-                    .last()
-                    .unwrap()
-                    .clone()
-                    .target
-                    .to_string()
-            )
+            .get(&SRV_RECORD.entries.last().unwrap().clone().target.to_string())
             .unwrap()
             .first()
             .cloned()
@@ -66,15 +42,7 @@ async fn resolves_correctly() {
     assert_eq!(
         resolvable.resolve_next().await.map(|t| t.ip_addr),
         IP_ADDRS
-            .get(
-                &SRV_RECORD
-                    .entries
-                    .last()
-                    .unwrap()
-                    .clone()
-                    .target
-                    .to_string()
-            )
+            .get(&SRV_RECORD.entries.last().unwrap().clone().target.to_string())
             .unwrap()
             .last()
             .cloned()
@@ -93,21 +61,15 @@ impl DnsClient for CustomMockedDnsClient {
     async fn srv_lookup(&self, _domain: SrvDomain) -> Option<SrvRecord> {
         Some(SRV_RECORD.clone())
     }
-    async fn a_lookup(&self, domain: Domain) -> Result<AddrRecord, Error> {
-        Ok(AddrRecord {
-            ip_addrs: IP_ADDRS.get(&domain.to_string()).unwrap().clone(),
-            domain,
-        })
-    }
-    async fn aaaa_lookup(&self, _domain: Domain) -> Result<AddrRecord, Error> {
-        unimplemented!()
+    async fn ip_lookup(&self, domain: Domain) -> Result<AddrRecord, Error> {
+        Ok(AddrRecord { ip_addrs: IP_ADDRS.get(&domain.to_string()).unwrap().clone(), domain })
     }
 }
 
 static DOMAIN: Lazy<Domain> = Lazy::new(|| Domain::from("example.com"));
 
 static NAPTR_RECORD: Lazy<NaptrRecord> = Lazy::new(|| {
-    //use rsip::Randomize;
+    //use testing_utils::Randomize;
 
     NaptrRecord {
         entries: vec![NaptrEntry {
@@ -123,7 +85,7 @@ static NAPTR_RECORD: Lazy<NaptrRecord> = Lazy::new(|| {
 });
 
 static SRV_RECORD: Lazy<SrvRecord> = Lazy::new(|| {
-    use rsip::Randomize;
+    use testing_utils::Randomize;
 
     SrvRecord {
         entries: vec![
@@ -140,18 +102,12 @@ static SRV_RECORD: Lazy<SrvRecord> = Lazy::new(|| {
                 target: SRV_TARGETS.last().cloned().unwrap(),
             },
         ],
-        domain: NAPTR_RECORD
-            .entries
-            .first()
-            .unwrap()
-            .clone()
-            .try_into()
-            .unwrap(),
+        domain: NAPTR_RECORD.entries.first().unwrap().clone().try_into().unwrap(),
     }
 });
 
 static IP_ADDRS: Lazy<HashMap<String, Vec<IpAddr>>> = Lazy::new(|| {
-    use rsip::Randomize;
+    use testing_utils::Randomize;
 
     let mut m = HashMap::new();
     m.insert(
@@ -167,7 +123,7 @@ static IP_ADDRS: Lazy<HashMap<String, Vec<IpAddr>>> = Lazy::new(|| {
 });
 
 static SRV_TARGETS: Lazy<Vec<Domain>> = Lazy::new(|| {
-    use rsip::Randomize;
+    use testing_utils::Randomize;
 
     vec![Randomize::random(), Randomize::random()]
 });

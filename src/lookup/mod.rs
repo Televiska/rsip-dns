@@ -3,14 +3,6 @@ use async_trait::async_trait;
 use rsip::{Domain, Host, Port, Transport};
 use std::net::IpAddr;
 
-//mod domain_with_port_lookup;
-//mod ip_lookup;
-//mod domain_with_transport_lookup;
-
-//pub use domain_with_port_lookup::DomainWithPortLookup;
-//pub use ip_lookup::IpLookup;
-//pub use domain_with_transport_lookup::DomainWithTransportLookup;
-
 #[derive(Debug, Clone)]
 pub enum Lookup<C>
 where
@@ -91,18 +83,14 @@ fn domain_with_transport_lookup<C: DnsClient>(
 ) -> Lookup<C> {
     let mut lookups: Vec<ResolvableEnum<C>> = vec![];
 
-    let srv_domain = SrvDomain {
-        secure: ctx.secure,
-        transport,
-        domain,
-    };
+    let srv_domain = SrvDomain { secure: ctx.secure, protocol: transport.protocol(), domain };
     lookups.push(ResolvableSrvRecord::new(ctx.dns_client.clone(), srv_domain.clone()).into());
     lookups.push(
         ResolvableAddrRecord::new(
             ctx.dns_client,
-            srv_domain.to_string().into(),
-            transport.default_port(),
-            transport,
+            srv_domain.domain.clone(),
+            srv_domain.transport().default_port(),
+            srv_domain.transport(),
         )
         .into(),
     );
@@ -118,21 +106,19 @@ fn just_domain_lookup<C: DnsClient>(domain: Domain, ctx: Context<C>) -> Lookup<C
     )
     .into()];
 
-    ctx.available_transports()
-        .into_iter()
-        .for_each(|transport| {
-            let srv_domain = SrvDomain {
-                secure: ctx.secure,
-                transport,
-                domain: domain.clone(),
-            };
+    ctx.available_protocols().into_iter().for_each(|transport| {
+        let srv_domain = SrvDomain {
+            secure: ctx.secure,
+            protocol: transport.protocol(),
+            domain: domain.clone(),
+        };
 
-            lookups.push(ResolvableSrvRecord::new(ctx.dns_client.clone(), srv_domain).into());
-        });
+        lookups.push(ResolvableSrvRecord::new(ctx.dns_client.clone(), srv_domain).into());
+    });
 
     let default_transport = match ctx.secure {
-        true => Transport::Tls,
-        false => Transport::Udp,
+        true => Transport::default_secure_transport(),
+        false => Transport::default_insecure_transport(),
     };
     lookups.push(
         ResolvableAddrRecord::new(

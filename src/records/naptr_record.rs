@@ -2,12 +2,14 @@ use rsip::{Domain, Error, Transport};
 use std::collections::VecDeque;
 use std::convert::TryFrom;
 
+/// Simple struct that holds the NAPTR record details (domain and srv entries)
 #[derive(Debug, Clone)]
 pub struct NaptrRecord {
     pub entries: Vec<NaptrEntry>,
     pub domain: Domain,
 }
 
+/// Simple struct that resembles the NAPTR record entries
 #[derive(Debug, Clone)]
 pub struct NaptrEntry {
     pub order: u16,
@@ -18,6 +20,8 @@ pub struct NaptrEntry {
     pub replacement: Domain,
 }
 
+//TODO: this should be a vec of NaptrFlag, with some handy methods to check if there is only 1
+//specific flag or a specific flag is contained (in our case S flag is what we care)
 #[derive(Debug, Clone)]
 pub enum NaptrFlags {
     S,
@@ -27,6 +31,8 @@ pub enum NaptrFlags {
     Other(Vec<u8>),
 }
 
+//TODO: this should be a vec of NaptrServices, with some handy methods to check if there is only 1
+//specific service or a specific service is contained (in our case SIP(S)+D2x services is what we care)
 #[derive(Debug, Clone)]
 pub enum NaptrServices {
     SipD2t,
@@ -38,6 +44,18 @@ pub enum NaptrServices {
     SipsD2s,
     SipsD2w,
     Other(String),
+}
+
+impl From<&[u8]> for NaptrFlags {
+    fn from(from: &[u8]) -> Self {
+        match from {
+            s if s == b"S" => Self::S,
+            s if s == b"A" => Self::A,
+            s if s == b"A" => Self::U,
+            s if s == b"P" => Self::P,
+            s => Self::Other(s.to_vec()),
+        }
+    }
 }
 
 impl NaptrEntry {
@@ -65,18 +83,6 @@ impl NaptrRecord {
 
     pub fn iter(&self) -> impl Iterator<Item = &NaptrEntry> {
         self.entries.iter()
-    }
-
-    pub fn replacements(&self) -> Vec<Domain> {
-        self.iter()
-            .map(|s| s.replacement.clone())
-            .collect::<Vec<Domain>>()
-    }
-
-    pub fn transports(&self) -> Vec<Transport> {
-        self.iter()
-            .flat_map(|s| s.services.transport())
-            .collect::<Vec<_>>()
     }
 
     pub fn sorted(mut self) -> Self {
@@ -126,13 +132,13 @@ impl NaptrServices {
     }
 }
 
-impl TryFrom<Vec<u8>> for NaptrServices {
+impl TryFrom<&[u8]> for NaptrServices {
     type Error = Error;
 
-    fn try_from(from: Vec<u8>) -> Result<Self, Self::Error> {
+    fn try_from(from: &[u8]) -> Result<Self, Self::Error> {
         use std::str::from_utf8;
 
-        match from_utf8(&from)? {
+        match from_utf8(from)? {
             part if part.eq_ignore_ascii_case("SIP+D2T") => Ok(Self::SipD2t),
             part if part.eq_ignore_ascii_case("SIP+D2U") => Ok(Self::SipD2u),
             part if part.eq_ignore_ascii_case("SIP+D2S") => Ok(Self::SipD2s),
@@ -147,9 +153,9 @@ impl TryFrom<Vec<u8>> for NaptrServices {
 }
 
 #[cfg(feature = "test-utils")]
-impl rsip::Randomize for NaptrEntry {
+impl testing_utils::Randomize for NaptrEntry {
     fn random() -> Self {
-        let services = rsip::sample(&[
+        let services = testing_utils::sample(&[
             NaptrServices::SipD2t,
             NaptrServices::SipD2u,
             NaptrServices::SipD2s,
@@ -161,8 +167,8 @@ impl rsip::Randomize for NaptrEntry {
         ]);
 
         Self {
-            order: rsip::rand_num_from(0..10),
-            preference: rsip::rand_num_from(0..10),
+            order: testing_utils::rand_num_from(0..10),
+            preference: testing_utils::rand_num_from(0..10),
             flags: NaptrFlags::S,
             services,
             regexp: vec![],

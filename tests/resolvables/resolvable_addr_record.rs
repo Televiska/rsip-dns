@@ -4,7 +4,7 @@ use rsip_dns::{records::*, resolvables::*, Target};
 
 #[tokio::test]
 async fn resolves_correctly() {
-    use rsip::Randomize;
+    use testing_utils::Randomize;
 
     let domain = Domain::random();
 
@@ -23,31 +23,19 @@ async fn resolves_correctly() {
 
     assert_eq!(
         resolvable.resolve_next().await,
-        dns_client
-            .a_record
-            .clone()
-            .unwrap()
-            .ip_addrs
-            .first()
-            .map(|ip_addr| Target {
-                ip_addr: ip_addr.clone(),
-                port,
-                transport
-            })
+        dns_client.a_record.clone().unwrap().ip_addrs.first().map(|ip_addr| Target {
+            ip_addr: ip_addr.clone(),
+            port,
+            transport
+        })
     );
     assert_eq!(
         resolvable.resolve_next().await,
-        dns_client
-            .a_record
-            .clone()
-            .unwrap()
-            .ip_addrs
-            .last()
-            .map(|ip_addr| Target {
-                ip_addr: ip_addr.clone(),
-                port,
-                transport
-            })
+        dns_client.a_record.clone().unwrap().ip_addrs.last().map(|ip_addr| Target {
+            ip_addr: ip_addr.clone(),
+            port,
+            transport
+        })
     );
     assert!(resolvable.resolve_next().await.is_none());
 }

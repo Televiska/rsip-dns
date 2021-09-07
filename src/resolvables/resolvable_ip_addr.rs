@@ -30,11 +30,7 @@ impl ResolvableExt<Target> for ResolvableIpAddr {
 
 impl ResolvableIpAddr {
     pub fn new(ip_addr: IpAddr, port: Port, transport: Transport) -> Self {
-        Self {
-            ip_addr: Resolvable::non_empty(vec![ip_addr]),
-            port,
-            transport,
-        }
+        Self { ip_addr: Resolvable::non_empty(vec![ip_addr]), port, transport }
     }
 }
 
@@ -43,13 +39,10 @@ mod tests {
     #[tokio::test]
     async fn resolves() {
         use super::*;
-        use rsip::Randomize;
+        use testing_utils::Randomize;
 
-        let mut resolvable = ResolvableIpAddr::new(
-            Randomize::random(),
-            Randomize::random(),
-            Randomize::random(),
-        );
+        let mut resolvable =
+            ResolvableIpAddr::new(Randomize::random(), Randomize::random(), Randomize::random());
 
         assert!(resolvable.resolve_next().await.is_some());
         assert!(resolvable.resolve_next().await.is_none());

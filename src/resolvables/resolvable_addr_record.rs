@@ -40,25 +40,22 @@ where
     C: DnsClient,
 {
     pub fn new(dns_client: C, domain: Domain, port: Port, transport: Transport) -> Self {
-        Self {
-            dns_client,
-            domain,
-            port,
-            transport,
-            resolvable_ip_addrs: Default::default(),
-        }
+        Self { dns_client, domain, port, transport, resolvable_ip_addrs: Default::default() }
     }
 
     async fn resolve_domain(&mut self) {
-        self.resolvable_ip_addrs = ResolvableVec::non_empty(
-            self.dns_client
-                .a_lookup(self.domain.clone())
-                .await
-                .unwrap()
-                .ip_addrs
-                .into_iter()
-                .map(|ip_addr| ResolvableIpAddr::new(ip_addr, self.port, self.transport))
-                .collect::<Vec<_>>(),
-        )
+        match self.dns_client.ip_lookup(self.domain.clone()).await {
+            Ok(a_record) => {
+                let resolvable_ip_addrs = a_record
+                    .ip_addrs
+                    .into_iter()
+                    .map(|ip_addr| ResolvableIpAddr::new(ip_addr, self.port, self.transport))
+                    .collect::<Vec<_>>();
+                self.resolvable_ip_addrs = ResolvableVec::non_empty(resolvable_ip_addrs)
+            }
+            Err(_) => {
+                self.resolvable_ip_addrs = ResolvableVec::empty();
+            }
+        }
     }
 }

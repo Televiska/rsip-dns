@@ -38,33 +38,30 @@ where
     C: DnsClient,
 {
     pub fn new(dns_client: C, domain: SrvDomain) -> Self {
-        Self {
-            dns_client,
-            domain,
-            resolvable_addr_records: Default::default(),
-        }
+        Self { dns_client, domain, resolvable_addr_records: Default::default() }
     }
 
     async fn resolve_domain(&mut self) {
-        let srv_record = self
-            .dns_client
-            .srv_lookup(self.domain.clone())
-            .await
-            .unwrap();
+        match self.dns_client.srv_lookup(self.domain.clone()).await {
+            Some(srv_record) => {
+                let resolvable_addr_records = srv_record
+                    .domains_with_ports()
+                    .into_iter()
+                    .map(|(domain, port)| {
+                        ResolvableAddrRecord::new(
+                            self.dns_client.clone(),
+                            domain,
+                            port,
+                            srv_record.transport(),
+                        )
+                    })
+                    .collect::<Vec<_>>();
 
-        let resolvable_addr_records = srv_record
-            .domains_with_ports()
-            .into_iter()
-            .map(|(domain, port)| {
-                ResolvableAddrRecord::new(
-                    self.dns_client.clone(),
-                    domain,
-                    port,
-                    srv_record.transport(),
-                )
-            })
-            .collect::<Vec<_>>();
-
-        self.resolvable_addr_records = ResolvableVec::non_empty(resolvable_addr_records)
+                self.resolvable_addr_records = ResolvableVec::non_empty(resolvable_addr_records)
+            }
+            None => {
+                self.resolvable_addr_records = ResolvableVec::empty();
+            }
+        }
     }
 }

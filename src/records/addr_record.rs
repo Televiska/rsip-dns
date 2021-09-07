@@ -1,6 +1,7 @@
 use rsip::Domain;
 use std::net::IpAddr;
 
+/// Simple struct that holds the A record details (domain and ip entries)
 #[derive(Debug, Clone)]
 pub struct AddrRecord {
     pub domain: Domain,
@@ -9,9 +10,6 @@ pub struct AddrRecord {
 
 impl From<(Domain, Vec<IpAddr>)> for AddrRecord {
     fn from(tuple: (Domain, Vec<IpAddr>)) -> Self {
-        Self {
-            domain: tuple.0,
-            ip_addrs: tuple.1,
-        }
+        Self { domain: tuple.0, ip_addrs: tuple.1 }
     }
 }

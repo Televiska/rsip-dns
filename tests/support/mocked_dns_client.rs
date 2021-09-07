@@ -17,10 +17,7 @@ impl DnsClient for MockedDnsClient {
     async fn srv_lookup(&self, _domain: SrvDomain) -> Option<SrvRecord> {
         self.srv_record.clone()
     }
-    async fn a_lookup(&self, _domain: Domain) -> Result<AddrRecord, Error> {
+    async fn ip_lookup(&self, _domain: Domain) -> Result<AddrRecord, Error> {
         Ok(self.a_record.clone().unwrap())
-    }
-    async fn aaaa_lookup(&self, _domain: Domain) -> Result<AddrRecord, Error> {
-        Ok(self.aaaa_record.clone().unwrap())
     }
 }

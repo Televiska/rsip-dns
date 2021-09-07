@@ -35,6 +35,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
+          args: --all-features
 
   fmt:
     name: Rustfmt
@@ -66,7 +67,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: -- -D warnings
+          args: --all-features -- -D warnings
   coverage:
     name: Coverage
     runs-on: ubuntu-latest
@@ -94,4 +95,4 @@ jobs:
           TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         with:
           command: tarpaulin
-          args: --coveralls "$TOKEN" --avoid-cfg-tarpaulin # @TODO restore to normal (https://github.com/xd009642/tarpaulin/issues/756#issuecomment-838769320)
+          args: --all-features --coveralls "$TOKEN" --avoid-cfg-tarpaulin # @TODO restore to normal (https://github.com/xd009642/tarpaulin/issues/756#issuecomment-838769320)

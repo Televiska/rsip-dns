@@ -1,6 +1,14 @@
 use super::SrvDomain;
 use rsip::{Domain, Port, Transport};
 
+/// Simple struct that holds the SRV record details (domain and srv entries)
+#[derive(Debug, Clone)]
+pub struct SrvRecord {
+    pub entries: Vec<SrvEntry>,
+    pub domain: SrvDomain,
+}
+
+/// Simple struct that resembles the SRV record entries
 #[derive(Debug, Clone)]
 pub struct SrvEntry {
     pub priority: u16,
@@ -9,35 +17,17 @@ pub struct SrvEntry {
     pub target: Domain,
 }
 
-impl SrvEntry {
-    pub fn total_weight(&self) -> u16 {
-        (10000 - self.priority) + self.weight
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct SrvRecord {
-    pub entries: Vec<SrvEntry>,
-    pub domain: SrvDomain,
-}
-
 impl SrvRecord {
     pub fn targets(&self) -> Vec<Domain> {
-        self.entries
-            .iter()
-            .map(|s| s.target.clone())
-            .collect::<Vec<Domain>>()
+        self.entries.iter().map(|s| s.target.clone()).collect::<Vec<Domain>>()
     }
 
     pub fn domains_with_ports(&self) -> Vec<(Domain, Port)> {
-        self.entries
-            .iter()
-            .map(|s| (s.target.clone(), s.port))
-            .collect::<Vec<_>>()
+        self.entries.iter().map(|s| (s.target.clone(), s.port)).collect::<Vec<_>>()
     }
 
     pub fn transport(&self) -> Transport {
-        self.domain.transport
+        self.domain.transport()
     }
 
     pub fn sorted(mut self) -> Self {
@@ -45,6 +35,12 @@ impl SrvRecord {
 
         self.entries.sort_by_key(|b| Reverse(b.total_weight()));
         self
+    }
+}
+
+impl SrvEntry {
+    pub fn total_weight(&self) -> u16 {
+        (10000 - self.priority) + self.weight
     }
 }
 
@@ -58,22 +54,22 @@ impl IntoIterator for SrvRecord {
 }
 
 #[cfg(feature = "test-utils")]
-impl rsip::Randomize for SrvDomain {
+impl testing_utils::Randomize for SrvDomain {
     fn random() -> Self {
-        use rsip::Randomize;
+        use testing_utils::Randomize;
 
         SrvDomain {
             domain: Randomize::random(),
-            transport: Randomize::random(),
+            protocol: Randomize::random(),
             secure: bool::random(),
         }
     }
 }
 
 #[cfg(feature = "test-utils")]
-impl rsip::Randomize for SrvEntry {
+impl testing_utils::Randomize for SrvEntry {
     fn random() -> Self {
-        use rsip::Randomize;
+        use testing_utils::Randomize;
 
         let secure = bool::random();
         let transport = match secure {
@@ -81,8 +77,8 @@ impl rsip::Randomize for SrvEntry {
             _ => Transport::random(),
         };
         Self {
-            priority: rsip::rand_num_from(0..10),
-            weight: rsip::rand_num_from(0..100),
+            priority: testing_utils::rand_num_from(0..10),
+            weight: testing_utils::rand_num_from(0..100),
             port: Randomize::random(),
             target: format!(
                 "_sip._{}.{}",
