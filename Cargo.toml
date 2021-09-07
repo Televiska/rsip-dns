@@ -1,6 +1,6 @@
 [package]
 name = "rsip-dns"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Filippos Vasilakis <vasilakisfil@gmail.com>"]
 edition = "2018"
 description = "SIP Rust library implementing RFC 3263, implemented on top of rsip"
