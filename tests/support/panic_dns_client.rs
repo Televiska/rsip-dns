@@ -12,10 +12,7 @@ impl DnsClient for PanicDnsClient {
     async fn srv_lookup(&self, _domain: SrvDomain) -> Option<SrvRecord> {
         panic!("should never call srv_entries_for, yet it did!")
     }
-    async fn a_lookup(&self, _domain: Domain) -> Result<AddrRecord, Error> {
+    async fn ip_lookup(&self, _domain: Domain) -> Result<AddrRecord, Error> {
         panic!("should never call a_entries_for, yet it did!")
-    }
-    async fn aaaa_lookup(&self, _domain: Domain) -> Result<AddrRecord, Error> {
-        panic!("should never call aaaa_entries_for, yet it did!")
     }
 }

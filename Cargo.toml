@@ -10,23 +10,28 @@ keywords = ["sip", "3261", "3263", "dns", "voip", "srv"]
 categories = ["parser-implementations", "parsing", "network-programming"]
 license-file = "LICENSE"
 
-
 [dependencies]
-rsip = { path = "../rsip" }
+rsip = { version = "0.2.0" }
 async-trait = { version = "0.1.51" }
 futures = { version = "0.3.16" }
+nom = { version = "6.1.2", features = ["alloc", "regexp"] }
 trust-dns-resolver = { version = "0.20.3", optional = true }
 trust-dns-proto = { version = "0.20.3", optional = true }
-rand = { version = "0.8.4", optional = true }
-log = { version = "0.4.14" }
+testing-utils = { version = "0.1.0", optional = true }
 
 [features]
+test-utils = ["testing-utils"]
 trust-dns = ["trust-dns-resolver", "trust-dns-proto"]
-test-utils = ["rand"]
 
 [dev-dependencies]
-rsip = { path = "../rsip", features = ["test-utils"] }
+rsip = { version = "0.2.0", features = ["test-utils"] }
 quote = "1.0.9"
 tokio = { version = "1.0", features = ["full", "test-util"] }
 rand = { version = "0.8.4" }
 once_cell = { version = "1.8" }
+log = { version = "0.4.14" }
+pretty_env_logger = "0.4.0"
+
+#[package.metadata.docs.rs]
+#all-features = true
+#rustdoc-args = ["--cfg", "docsrs"]

@@ -10,15 +10,7 @@ async fn resolves_correctly() {
     assert_eq!(
         resolvable.resolve_next().await.map(|t| t.ip_addr),
         IP_ADDRS
-            .get(
-                &SRV_RECORD
-                    .entries
-                    .first()
-                    .unwrap()
-                    .clone()
-                    .target
-                    .to_string()
-            )
+            .get(&SRV_RECORD.entries.first().unwrap().clone().target.to_string())
             .unwrap()
             .first()
             .cloned()
@@ -27,15 +19,7 @@ async fn resolves_correctly() {
     assert_eq!(
         resolvable.resolve_next().await.map(|t| t.ip_addr),
         IP_ADDRS
-            .get(
-                &SRV_RECORD
-                    .entries
-                    .first()
-                    .unwrap()
-                    .clone()
-                    .target
-                    .to_string()
-            )
+            .get(&SRV_RECORD.entries.first().unwrap().clone().target.to_string())
             .unwrap()
             .last()
             .cloned()
@@ -44,15 +28,7 @@ async fn resolves_correctly() {
     assert_eq!(
         resolvable.resolve_next().await.map(|t| t.ip_addr),
         IP_ADDRS
-            .get(
-                &SRV_RECORD
-                    .entries
-                    .last()
-                    .unwrap()
-                    .clone()
-                    .target
-                    .to_string()
-            )
+            .get(&SRV_RECORD.entries.last().unwrap().clone().target.to_string())
             .unwrap()
             .first()
             .cloned()
@@ -61,15 +37,7 @@ async fn resolves_correctly() {
     assert_eq!(
         resolvable.resolve_next().await.map(|t| t.ip_addr),
         IP_ADDRS
-            .get(
-                &SRV_RECORD
-                    .entries
-                    .last()
-                    .unwrap()
-                    .clone()
-                    .target
-                    .to_string()
-            )
+            .get(&SRV_RECORD.entries.last().unwrap().clone().target.to_string())
             .unwrap()
             .last()
             .cloned()
@@ -88,19 +56,13 @@ impl DnsClient for CustomMockedDnsClient {
     async fn srv_lookup(&self, _domain: SrvDomain) -> Option<SrvRecord> {
         Some(SRV_RECORD.clone())
     }
-    async fn a_lookup(&self, domain: Domain) -> Result<AddrRecord, Error> {
-        Ok(AddrRecord {
-            ip_addrs: IP_ADDRS.get(&domain.to_string()).unwrap().clone(),
-            domain,
-        })
-    }
-    async fn aaaa_lookup(&self, _domain: Domain) -> Result<AddrRecord, Error> {
-        unimplemented!()
+    async fn ip_lookup(&self, domain: Domain) -> Result<AddrRecord, Error> {
+        Ok(AddrRecord { ip_addrs: IP_ADDRS.get(&domain.to_string()).unwrap().clone(), domain })
     }
 }
 
 static SRV_RECORD: Lazy<SrvRecord> = Lazy::new(|| {
-    use rsip::Randomize;
+    use testing_utils::Randomize;
 
     SrvRecord {
         entries: vec![
@@ -122,23 +84,17 @@ static SRV_RECORD: Lazy<SrvRecord> = Lazy::new(|| {
 });
 
 static IP_ADDRS: Lazy<HashMap<String, Vec<IpAddr>>> = Lazy::new(|| {
-    use rsip::Randomize;
+    use testing_utils::Randomize;
 
     let mut m = HashMap::new();
-    m.insert(
-        TARGETS.first().unwrap().to_string(),
-        vec![Randomize::random(), Randomize::random()],
-    );
-    m.insert(
-        TARGETS.last().unwrap().to_string(),
-        vec![Randomize::random(), Randomize::random()],
-    );
+    m.insert(TARGETS.first().unwrap().to_string(), vec![Randomize::random(), Randomize::random()]);
+    m.insert(TARGETS.last().unwrap().to_string(), vec![Randomize::random(), Randomize::random()]);
 
     m
 });
 
 static TARGETS: Lazy<Vec<Domain>> = Lazy::new(|| {
-    use rsip::Randomize;
+    use testing_utils::Randomize;
 
     vec![Randomize::random(), Randomize::random()]
 });

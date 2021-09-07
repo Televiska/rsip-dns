@@ -51,6 +51,8 @@ where
 
     //TODO: should probably resolve U + sip URI and A flag as well ?
     async fn resolve_domain(&mut self) {
+        use crate::SrvDomain;
+
         let naptr_record = match self.dns_client.naptr_lookup(self.domain.clone()).await {
             Some(naptr_record) => naptr_record,
             None => {
@@ -66,7 +68,7 @@ where
                 None => false,
             })
             .filter(|s| matches!(s.flags, NaptrFlags::S))
-            .filter_map(|e| e.try_into().ok())
+            .filter_map(|e| TryInto::<SrvDomain>::try_into(e).ok())
             .map(|srv_domain| ResolvableSrvRecord::new(self.dns_client.clone(), srv_domain))
             .collect::<Vec<ResolvableSrvRecord<C>>>();
 

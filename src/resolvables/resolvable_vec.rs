@@ -15,7 +15,13 @@ where
     I: ResolvableItem,
 {
     fn state(&self) -> ResolvableState {
-        self.0.state()
+        match &self.0 {
+            None => ResolvableState::Unset,
+            Some(inner) => match inner.state() {
+                ResolvableState::Unset => ResolvableState::NonEmpty,
+                state => state,
+            },
+        }
     }
 
     async fn resolve_next(&mut self) -> Option<I> {
