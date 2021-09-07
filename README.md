@@ -9,5 +9,4 @@ SIP Rust library implementing [RFC 3263](https://datatracker.ietf.org/doc/html/r
 
 ## To Do
 * improve errors
-* implement tests using spies instead
-* add more examples
+* add examples
