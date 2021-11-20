@@ -152,7 +152,7 @@
 //! and then moves to the next. Usually you will find what you want quite fast (in the first 1-2
 //! iterations), but according to RFC3263, if you don't have port and transport, and NAPTR records
 //! are not responding, you might need 10 or even more DNS queries to resolve the peer (ip, port, transport)
-//! tuple. Probably the dns client could some kind of caching, but that's left up to you, since
+//! tuple. Probably the dns client could use some kind of caching, but that's left up to you, since
 //! you need to provide a dns client that implements the [DnsClient] trait.
 //!
 //! ## Resolving the next (ip, port, transport) tuple
