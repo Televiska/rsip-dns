@@ -223,4 +223,12 @@ pub use resolvables::ResolvableExt;
 pub use target::Target;
 
 #[cfg(feature = "trust-dns")]
-pub mod trust_dns;
+mod trust_dns;
+#[cfg(feature = "trust-dns")]
+pub use trust_dns::AsyncTrustDnsClient;
+#[cfg(feature = "trust-dns")]
+pub use trust_dns::TrustDnsClient;
+#[cfg(feature = "trust-dns")]
+pub use trust_dns_proto;
+#[cfg(feature = "trust-dns")]
+pub use trust_dns_resolver;

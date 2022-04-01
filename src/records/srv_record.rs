@@ -80,12 +80,8 @@ impl testing_utils::Randomize for SrvEntry {
             priority: testing_utils::rand_num_from(0..10),
             weight: testing_utils::rand_num_from(0..100),
             port: Randomize::random(),
-            target: format!(
-                "_sip._{}.{}",
-                transport.to_string().to_lowercase(),
-                Domain::random().to_string()
-            )
-            .into(),
+            target: format!("_sip._{}.{}", transport.to_string().to_lowercase(), Domain::random())
+                .into(),
         }
     }
 }
