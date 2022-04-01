@@ -89,17 +89,19 @@ impl TryFrom<&str> for SrvDomain {
         use std::convert::TryInto;
 
         let (rem, (_, scheme, _)) =
-            tuple::<_, _, VerboseError<&str>, _>((tag("_"), take_until("."), tag(".")))(from)?;
+            tuple::<_, _, VerboseError<&str>, _>((tag("_"), take_until("."), tag(".")))(from)
+                .map_err(|_| Error::tokenizer(("SrvDomain scheme", from)))?;
         let scheme: rsip::Scheme =
             rsip::common::uri::scheme::Tokenizer::from(scheme.as_bytes()).try_into()?;
 
         let (domain, (_, transport, _)) =
-            tuple::<_, _, VerboseError<&str>, _>((tag("_"), take_until("."), tag(".")))(rem)?;
+            tuple::<_, _, VerboseError<&str>, _>((tag("_"), take_until("."), tag(".")))(rem)
+                .map_err(|_| Error::tokenizer(("SrvDomain transport", from)))?;
         let transport: rsip::Transport =
             rsip::common::transport::Tokenizer::from(transport.as_bytes()).try_into()?;
 
         Ok(Self {
-            secure: scheme.is_sip_secure()?,
+            secure: scheme.is_sips()?,
             protocol: transport.protocol(),
             domain: domain.into(),
         })
